@@ -15,12 +15,12 @@ import { Navigation } from "./src/infrastructure/navigation";
 import { AuthenticationContextProvider } from "./src/services/authentication/authentication.context";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBmKwzXIQ_7iufDh4U6GyU_4Wc-hyDEnf8",
-  authDomain: "mealstogo-b2612.firebaseapp.com",
-  projectId: "mealstogo-b2612",
-  storageBucket: "mealstogo-b2612.appspot.com",
-  messagingSenderId: "158582890553",
-  appId: "1:158582890553:web:2ef50439fcd80f2ede2de8",
+  apiKey: "AIzaSyAW3GWRtJWS0KLJu_PR2oZZUX-rkERn4J8",
+  authDomain: "crwn-clothing-db-30a6b.firebaseapp.com",
+  projectId: "crwn-clothing-db-30a6b",
+  storageBucket: "crwn-clothing-db-30a6b.appspot.com",
+  messagingSenderId: "571396020520",
+  appId: "1:571396020520:web:459d5b21c8ce0654ced81d"
 };
 
 if (!firebase.apps.length) {
