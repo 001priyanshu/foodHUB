@@ -1,62 +1,53 @@
-import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
-import { ThemeProvider } from "styled-components/native";
-import * as firebase from "firebase";
+import React, { useState, useContext, createContext, useEffect } from "react";
 
 import {
-  useFonts as useOswald,
-  Oswald_400Regular,
-} from "@expo-google-fonts/oswald";
-import { useFonts as useLato, Lato_400Regular } from "@expo-google-fonts/lato";
+  restaurantsRequest,
+  restaurantsTransform,
+} from "./restaurants.service";
 
-import { theme } from "./src/infrastructure/theme";
-import { Navigation } from "./src/infrastructure/navigation";
+import { LocationContext } from "../location/location.context";
 
-import { RestaurantsContextProvider } from "./src/services/restaurants/restaurants.context";
-import { LocationContextProvider } from "./src/services/location/location.context";
-import { FavouritesContextProvider } from "./src/services/favourites/favourites.context";
-import { AuthenticationContextProvider } from "./src/services/authentication/authentication.context";
+export const RestaurantsContext = createContext();
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBmKwzXIQ_7iufDh4U6GyU_4Wc-hyDEnf8",
-  authDomain: "mealstogo-b2612.firebaseapp.com",
-  projectId: "mealstogo-b2612",
-  storageBucket: "mealstogo-b2612.appspot.com",
-  messagingSenderId: "158582890553",
-  appId: "1:158582890553:web:2ef50439fcd80f2ede2de8",
-};
+export const RestaurantsContextProvider = ({ children }) => {
+  const [restaurants, setRestaurants] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { location } = useContext(LocationContext);
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+  const retrieveRestaurants = (loc) => {
+    setIsLoading(true);
+    setRestaurants([]);
 
-export default function App() {
-  const [oswaldLoaded] = useOswald({
-    Oswald_400Regular,
-  });
-
-  const [latoLoaded] = useLato({
-    Lato_400Regular,
-  });
-
-  if (!oswaldLoaded || !latoLoaded) {
-    return null;
-  }
+    setTimeout(() => {
+      restaurantsRequest(loc)
+        .then(restaurantsTransform)
+        .then((results) => {
+          setIsLoading(false);
+          setRestaurants(results);
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          setError(err);
+        });
+    }, 2000);
+  };
+  useEffect(() => {
+    if (location) {
+      const locationString = `${location.lat},${location.lng}`;
+      retrieveRestaurants(locationString);
+    }
+  }, [location]);
 
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <AuthenticationContextProvider>
-          <FavouritesContextProvider>
-            <LocationContextProvider>
-              <RestaurantsContextProvider>
-                <Navigation />
-              </RestaurantsContextProvider>
-            </LocationContextProvider>
-          </FavouritesContextProvider>
-        </AuthenticationContextProvider>
-      </ThemeProvider>
-      <ExpoStatusBar style="auto" />
-    </>
+    <RestaurantsContext.Provider
+      value={{
+        restaurants,
+        isLoading,
+        error,
+      }}
+    >
+      {children}
+    </RestaurantsContext.Provider>
   );
-}
+};
